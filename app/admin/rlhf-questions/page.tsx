@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import AdminLayout from "@/components/AdminLayout";
 import {
   Plus,
   Trash2,
@@ -32,9 +33,9 @@ type Question = {
   answer_count?: number;
 };
 
-const BG = "#040812";
-const SURFACE = "#070e1c";
-const BORDER = "#0e1d38";
+const BG = "#ffffff";
+const SURFACE = "#f5f5f5";
+const BORDER = "#e0e0e0";
 const C = "#10b981";
 
 export default function AdminRLHFPage() {

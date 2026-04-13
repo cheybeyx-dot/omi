@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import AdminLayout from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -228,13 +229,14 @@ export default function SupportTicketsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Support Tickets</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage customer support tickets
-        </p>
-      </div>
+    <AdminLayout>
+      <div className="space-y-6 bg-white">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Support Tickets</h1>
+          <p className="text-gray-600 mt-1">
+            Manage customer support tickets
+          </p>
+        </div>
 
       <Card>
         <CardHeader>
@@ -489,5 +491,6 @@ export default function SupportTicketsPage() {
         </DialogContent>
       </Dialog>
     </div>
+    </AdminLayout>
   );
 }

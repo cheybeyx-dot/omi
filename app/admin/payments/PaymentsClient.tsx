@@ -4,6 +4,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import AdminLayout from "@/components/AdminLayout";
 import {
   CheckCircle,
   XCircle,

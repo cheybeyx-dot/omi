@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import AdminLayout from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -113,13 +114,14 @@ export default function KYCPage() {
   const verifiedCount = documents.filter((d) => d.status === "verified").length;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">KYC Documents</h1>
-        <p className="text-muted-foreground">
-          Verify and manage user KYC documents
-        </p>
-      </div>
+    <AdminLayout>
+      <div className="space-y-6 bg-white">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">KYC Documents</h1>
+          <p className="text-gray-600 mt-1">
+            Verify and manage user KYC documents
+          </p>
+        </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
@@ -307,5 +309,6 @@ export default function KYCPage() {
         </CardContent>
       </Card>
     </div>
+    </AdminLayout>
   );
 }
