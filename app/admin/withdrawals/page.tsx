@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import AdminLayout from "@/components/AdminLayout";
 import {
   CheckCircle,
   XCircle,
@@ -326,25 +327,23 @@ export default function AdminWithdrawalsPage() {
   ).length;
 
   return (
-    <div
-      className="space-y-6 p-6"
-      style={{ background: "#06080f", minHeight: "100vh", color: "white" }}
-    >
-      {toast && (
-        <div
-          className={`fixed top-5 right-5 z-50 px-4 py-3 rounded-xl text-sm font-bold shadow-2xl flex items-center gap-2 ${toast.ok ? "bg-emerald-500 text-slate-950" : "bg-red-500 text-white"}`}
-        >
-          {toast.ok ? <CheckCircle size={14} /> : <XCircle size={14} />}{" "}
-          {toast.msg}
-        </div>
-      )}
+    <AdminLayout>
+      <div className="space-y-6 bg-white min-h-screen">
+        {toast && (
+          <div
+            className={`fixed top-5 right-5 z-50 px-4 py-3 rounded-xl text-sm font-bold shadow-2xl flex items-center gap-2 ${toast.ok ? "bg-emerald-500 text-slate-950" : "bg-red-500 text-white"}`}
+          >
+            {toast.ok ? <CheckCircle size={14} /> : <XCircle size={14} />}{" "}
+            {toast.msg}
+          </div>
+        )}
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-black">Withdrawal Requests</h1>
-          <p className="text-slate-500 text-sm">
-            Process user withdrawal requests · Balance auto-deducted on submit
-          </p>
+        <div className="flex items-center justify-between px-6 py-6 border-b border-gray-200">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Withdrawal Requests</h1>
+            <p className="text-gray-600 text-sm mt-1">
+              Process user withdrawal requests · Balance auto-deducted on submit
+            </p>
         </div>
         <button
           onClick={fetchWithdrawals}
@@ -809,5 +808,6 @@ export default function AdminWithdrawalsPage() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }

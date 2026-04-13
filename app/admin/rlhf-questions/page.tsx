@@ -158,48 +158,32 @@ export default function AdminRLHFPage() {
     "w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500";
 
   return (
-    <div
-      className="min-h-screen p-6"
-      style={{ background: BG, color: "#cbd5e1" }}
-    >
-      <div className="max-w-4xl mx-auto space-y-5">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div>
-            <p
-              className="text-[9px] font-mono uppercase tracking-[0.2em] mb-1"
-              style={{ color: C }}
-            >
-              Admin Panel
-            </p>
-            <h1 className="text-2xl font-black text-white flex items-center gap-2">
-              <MessageSquare size={20} style={{ color: C }} /> RLHF Questions
-            </h1>
-            <p className="text-slate-500 text-sm mt-1">
-              {questions.length} questions ·{" "}
-              {questions.filter((q) => q.is_active).length} active
-            </p>
+    <AdminLayout>
+      <div style={{ background: BG }} className="min-h-screen">
+        <div className="max-w-4xl mx-auto px-5 py-6 space-y-5">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">RLHF Questions</h1>
+              <p className="text-gray-600 text-sm mt-1">
+                {questions.length} questions · {questions.filter((q) => q.is_active).length} active
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={load}
+                className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all"
+              >
+                <RefreshCw size={12} /> Refresh
+              </button>
+              <button
+                onClick={() => setCreating(true)}
+                className="flex items-center gap-1.5 text-xs font-black px-4 py-2 rounded-xl text-white"
+                style={{ background: C }}
+              >
+                <Plus size={12} /> New Question
+              </button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={load}
-              className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl border"
-              style={{
-                borderColor: "#1a3560",
-                color: "#64748b",
-                background: SURFACE,
-              }}
-            >
-              <RefreshCw size={12} /> Refresh
-            </button>
-            <button
-              onClick={() => setCreating(true)}
-              className="flex items-center gap-1.5 text-xs font-black px-4 py-2 rounded-xl text-slate-950"
-              style={{ background: C }}
-            >
-              <Plus size={12} /> New Question
-            </button>
-          </div>
-        </div>
 
         {msg && (
           <div
@@ -294,63 +278,12 @@ export default function AdminRLHFPage() {
                     }
                     className={InputCls}
                   />
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={createQuestion}
-                disabled={saving}
-                className="flex items-center gap-1.5 text-sm font-black px-5 py-2.5 rounded-xl text-slate-950 disabled:opacity-50"
-                style={{ background: C }}
-              >
-                {saving ? (
-                  <RefreshCw size={13} className="animate-spin" />
-                ) : (
-                  <Save size={13} />
-                )}{" "}
-                Create Question
-              </button>
-              <button
-                onClick={() => setCreating(false)}
-                className="text-slate-400 text-sm px-4 py-2.5 rounded-xl border border-slate-700"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Questions list */}
-        {loading ? (
-          <div className="text-center py-16">
-            <div
-              className="w-8 h-8 border-2 border-t-emerald-400 rounded-full animate-spin mx-auto"
-              style={{ borderColor: `${BORDER} ${BORDER} ${BORDER} ${C}` }}
-            />
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {questions.map((q) => (
-              <div
-                key={q.id}
-                className="rounded-2xl overflow-hidden"
-                style={{
-                  background: SURFACE,
-                  border: `1px solid ${q.is_active ? BORDER : "#1e293b"}`,
-                }}
-              >
-                <div className="p-5">
-                  {editing === q.id ? (
-                    <div className="space-y-3">
-                      <textarea
-                        value={editForm.question}
-                        onChange={(e) =>
-                          setEditForm((f) => ({
-                            ...f,
-                            question: e.target.value,
-                          }))
-                        }
+        </div>
+      </div>
+    </div>
+    </AdminLayout>
+  );
+}
                         rows={2}
                         className={InputCls}
                       />
