@@ -305,12 +305,15 @@ function DeliveryModal({
               Fill in your details to qualify for prize delivery
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="text-slate-600 hover:text-white p-1"
-          >
-            <X size={16} />
-          </button>
+          {/* Hide close button when not yet submitted - it's a gating requirement */}
+          {false && (
+            <button
+              onClick={onClose}
+              className="text-slate-600 hover:text-white p-1"
+            >
+              <X size={16} />
+            </button>
+          )}
         </div>
         <div className="p-5 space-y-3">
           {done ? (
@@ -477,6 +480,21 @@ export default function NetworkPage() {
       </div>
     );
 
+  // Delivery gate: if not submitted, show full-screen delivery modal
+  if (!deliverySubmitted) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: "#060b14", color: "#cbd5e1" }}
+      >
+        <DeliveryModal
+          onClose={() => {}} // Don't allow close without submitting
+          onSaved={() => setDeliverySubmitted(true)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className="min-h-screen pb-24"
@@ -484,12 +502,6 @@ export default function NetworkPage() {
     >
       {showShare && (
         <ShareModal code={referralCode} onClose={() => setShowShare(false)} />
-      )}
-      {showDelivery && (
-        <DeliveryModal
-          onClose={() => setShowDelivery(false)}
-          onSaved={() => setDeliverySubmitted(true)}
-        />
       )}
 
       <div className="max-w-lg mx-auto px-4 py-5 space-y-5">
@@ -559,15 +571,11 @@ export default function NetworkPage() {
                     className="w-20 h-16 rounded-lg overflow-hidden shrink-0 relative"
                     style={{ border: "1px solid rgba(255,255,255,0.1)" }}
                   >
-                    {/* Car image placeholder - replace with actual uploaded image path */}
-                    <div
-                      className="w-full h-full flex items-center justify-center text-3xl"
-                      style={{
-                        background: "linear-gradient(135deg, #1e293b, #0f172a)",
-                      }}
-                    >
-                      🚗
-                    </div>
+                    <img
+                      src="/prizes/car.jpg"
+                      alt="Luxury Car Prize"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 mb-1">
@@ -612,13 +620,16 @@ export default function NetworkPage() {
                 />
                 <div className="relative flex items-center gap-3 p-3">
                   <div
-                    className="w-20 h-16 rounded-lg overflow-hidden shrink-0 flex items-center justify-center text-3xl"
+                    className="w-20 h-16 rounded-lg overflow-hidden shrink-0"
                     style={{
-                      background: "linear-gradient(135deg, #1e293b, #0f172a)",
                       border: "1px solid rgba(255,255,255,0.1)",
                     }}
                   >
-                    📱
+                    <img
+                      src="/prizes/phones.jpg"
+                      alt="iPhone and Samsung Phones"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 mb-1">
@@ -663,13 +674,16 @@ export default function NetworkPage() {
                 />
                 <div className="relative flex items-center gap-3 p-3">
                   <div
-                    className="w-20 h-16 rounded-lg overflow-hidden shrink-0 flex items-center justify-center text-3xl"
+                    className="w-20 h-16 rounded-lg overflow-hidden shrink-0"
                     style={{
-                      background: "linear-gradient(135deg, #1e293b, #0f172a)",
                       border: "1px solid rgba(255,255,255,0.1)",
                     }}
                   >
-                    ❄️
+                    <img
+                      src="/prizes/fridge.jpg"
+                      alt="Samsung Bespoke Fridge"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 mb-1">
@@ -745,58 +759,30 @@ export default function NetworkPage() {
               </div>
             </div>
 
-            {/* CTA to submit delivery or share */}
-            {!deliverySubmitted ? (
-              <div
-                className="rounded-xl p-4 space-y-3"
-                style={{
-                  background: "rgba(245,158,11,0.07)",
-                  border: "1px solid rgba(245,158,11,0.2)",
-                }}
-              >
-                <p className="text-amber-300 text-sm font-black">
-                  📦 To partake — fill your delivery details
+            {/* Delivery confirmation badge - always shown since it's now a gate */}
+            <div
+              className="rounded-xl p-3 flex items-center gap-3"
+              style={{
+                background: "rgba(16,185,129,0.07)",
+                border: "1px solid rgba(16,185,129,0.2)",
+              }}
+            >
+              <Check size={16} className="text-emerald-400 shrink-0" />
+              <div>
+                <p className="text-emerald-400 font-bold text-sm">
+                  Delivery details submitted ✓
                 </p>
-                <p className="text-slate-400 text-xs leading-relaxed">
-                  Submit your name, phone, address and country so we can deliver
-                  your prize when you qualify. You must submit before the month
-                  ends.
+                <p className="text-slate-500 text-xs">
+                  You&apos;re registered. Keep referring to win!
                 </p>
-                <button
-                  onClick={() => setShowDelivery(true)}
-                  className="w-full py-3 rounded-xl font-black text-sm text-slate-900 transition-all"
-                  style={{
-                    background: "linear-gradient(135deg, #f59e0b, #d97706)",
-                  }}
-                >
-                  ✅ Fill Delivery Details — Register Now
-                </button>
               </div>
-            ) : (
-              <div
-                className="rounded-xl p-3 flex items-center gap-3"
-                style={{
-                  background: "rgba(16,185,129,0.07)",
-                  border: "1px solid rgba(16,185,129,0.2)",
-                }}
+              <button
+                onClick={() => setShowDelivery(true)}
+                className="ml-auto text-slate-500 hover:text-slate-300 text-xs underline shrink-0"
               >
-                <Check size={16} className="text-emerald-400 shrink-0" />
-                <div>
-                  <p className="text-emerald-400 font-bold text-sm">
-                    Delivery details submitted ✓
-                  </p>
-                  <p className="text-slate-500 text-xs">
-                    You're registered. Keep referring to win!
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowDelivery(true)}
-                  className="ml-auto text-slate-500 hover:text-slate-300 text-xs underline shrink-0"
-                >
-                  Edit
-                </button>
-              </div>
-            )}
+                Edit
+              </button>
+            </div>
           </div>
         </div>
 
