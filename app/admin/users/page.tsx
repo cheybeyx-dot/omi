@@ -2,6 +2,7 @@
 // app/admin/users/page.tsx — calls /api/admin/users server route, no client-side RLS
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import AdminLayout from "@/components/AdminLayout";
 import {
   Search,
   RefreshCw,
@@ -1071,32 +1072,33 @@ export default function AdminUsersPage() {
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: BG, color: TEXT_PRIMARY }}
-    >
-      {selected && (
-        <UserDrawer
-          user={selected}
-          onClose={() => setSelected(null)}
-          onUpdate={() => {
-            setSelected(null);
-            loadUsers();
-            loadStats();
-          }}
-        />
-      )}
-      <div className="max-w-[1440px] mx-auto px-5 py-6 pb-24 space-y-5">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <p
-              className="text-[9px] font-mono uppercase tracking-[0.2em] mb-1"
-              style={{ color: C }}
-            >
-              Admin Panel
-            </p>
-            <h1
-              className="text-2xl font-black flex items-center gap-2.5"
+    <AdminLayout>
+      <div
+        className="min-h-screen"
+        style={{ background: BG, color: TEXT_PRIMARY }}
+      >
+        {selected && (
+          <UserDrawer
+            user={selected}
+            onClose={() => setSelected(null)}
+            onUpdate={() => {
+              setSelected(null);
+              loadUsers();
+              loadStats();
+            }}
+          />
+        )}
+        <div className="space-y-5">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <p
+                className="text-[9px] font-mono uppercase tracking-[0.2em] mb-1"
+                style={{ color: C }}
+              >
+                User Management
+              </p>
+              <h1
+                className="text-2xl font-black flex items-center gap-2.5"
               style={{ color: TEXT_PRIMARY }}
             >
               <Users size={20} style={{ color: C }} />
@@ -1473,6 +1475,6 @@ export default function AdminUsersPage() {
           </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
