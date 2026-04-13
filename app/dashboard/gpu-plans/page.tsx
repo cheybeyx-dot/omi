@@ -9,6 +9,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { getBusinessDayMessage, isBusinessDay } from "@/lib/business-days";
 import DashboardNavigation from "@/components/dashboard-navigation";
 import {
   ArrowRight,

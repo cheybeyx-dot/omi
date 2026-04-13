@@ -7,6 +7,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { getBusinessDayMessage, isBusinessDay } from "@/lib/business-days";
 import DashboardNavigation from "@/components/dashboard-navigation";
 import {
   isKYCApproved,
@@ -334,6 +335,7 @@ function WithdrawModal({
   onSuccess: () => void;
 }) {
   const [amount, setAmount] = useState("");
+  const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -342,6 +344,8 @@ function WithdrawModal({
   const available = Math.max(0, availableBalance);
   const expectedDays = amt < 500 ? 1 : amt < 5000 ? 2 : amt < 50000 ? 5 : 7;
   const expectedDate = new Date(Date.now() + expectedDays * 86400000);
+  const businessDayMessage = getBusinessDayMessage();
+  const isBusinessDayNow = isBusinessDay();
 
   const payoutGateway = profile.payout_gateway || "unknown";
   const payoutName = profile.payout_account_name || "—";
@@ -355,6 +359,40 @@ function WithdrawModal({
 
   async function handleSubmit() {
     setError("");
+
+    // ─── PIN VERIFICATION ─────────────────────────────────────────────────────
+    if (!pin || pin.length < 4) {
+      setError("Please enter your PIN (4-6 digits)");
+      return;
+    }
+
+    // Hash PIN for verification
+    async function hashPin(pinValue: string): Promise<string> {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(pinValue + userId);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(hashBuffer))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+    }
+
+    const providedPinHash = await hashPin(pin);
+    
+    // Get user's stored PIN hash
+    const { data: userData } = await supabase
+      .from("users")
+      .select("pin_hash")
+      .eq("id", userId)
+      .single();
+
+    if (!userData?.pin_hash || providedPinHash !== userData.pin_hash) {
+      setError("Invalid PIN. Withdrawal cannot be processed.");
+      logWithdrawalEvent(supabase, userId, "withdrawal_failed", {
+        reason: "Invalid PIN",
+        amount: amt,
+      }).catch(() => {});
+      return;
+    }
 
     // ─── COMPREHENSIVE FRAUD & KYC CHECK ───────────────────────────────────
     const securityCheck = await runWithdrawalSecurityChecks(
@@ -631,6 +669,43 @@ function WithdrawModal({
             </div>
           </div>
 
+          {/* Business Day Message */}
+          <div
+            className="rounded-xl p-4"
+            style={{
+              background: isBusinessDayNow ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)",
+              border: isBusinessDayNow ? "1px solid rgba(16,185,129,0.2)" : "1px solid rgba(239,68,68,0.25)",
+            }}
+          >
+            <p className={`text-sm font-bold flex items-center gap-2 ${isBusinessDayNow ? "text-emerald-400" : "text-yellow-400"}`}>
+              <Clock size={14} />
+              {businessDayMessage}
+            </p>
+            {!isBusinessDayNow && (
+              <p className="text-yellow-400/70 text-xs mt-1">
+                Withdrawals are only processed on business days (Monday to Friday).
+              </p>
+            )}
+          </div>
+
+          {/* PIN Input - Required for withdrawal */}
+          <div>
+            <label className="text-slate-300 text-sm font-bold block mb-2">
+              Security PIN <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="password"
+              maxLength={6}
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
+              placeholder="Enter your 4-6 digit PIN"
+              className="w-full px-4 py-3 rounded-xl text-lg font-bold text-center tracking-widest text-white bg-slate-900 border border-slate-700 focus:outline-none focus:border-emerald-500 transition-colors"
+            />
+            <p className="text-slate-500 text-xs mt-1">
+              Your PIN is required to complete the withdrawal for security.
+            </p>
+          </div>
+
           {/* Settlement timeline */}
           {amt >= MIN && amt <= available && (
             <div
@@ -715,10 +790,11 @@ function WithdrawModal({
           <button
             onClick={handleSubmit}
             disabled={
-              loading || isFrozen || !amount || !hasPayoutAccount || !kycOk
+              loading || isFrozen || !amount || !hasPayoutAccount || !kycOk || !pin || pin.length < 4 || !isBusinessDayNow
             }
             className="w-full py-4 rounded-xl font-black text-white flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ background: "linear-gradient(135deg,#10b981,#059669)" }}
+            title={!isBusinessDayNow ? "Withdrawals only available on business days (Mon-Fri)" : !pin || pin.length < 4 ? "Enter valid PIN" : ""}
           >
             {loading ? (
               <RefreshCw size={16} className="animate-spin" />
@@ -727,7 +803,11 @@ function WithdrawModal({
             )}
             {loading
               ? "Submitting..."
-              : `Request Withdrawal of $${amount || "0.00"}`}
+              : !isBusinessDayNow
+                ? "Only available on business days"
+                : !pin || pin.length < 4
+                  ? "Enter PIN to continue"
+                  : `Request Withdrawal of $${amount || "0.00"}`}
           </button>
 
           <p className="text-slate-600 text-[11px] text-center pb-2">

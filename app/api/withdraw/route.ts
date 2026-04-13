@@ -3,6 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { isBusinessDay } from "@/lib/business-days";
 
 const WithdrawSchema = z.object({
   amount: z
@@ -10,6 +11,11 @@ const WithdrawSchema = z.object({
     .positive("Amount must be positive")
     .max(50000, "Exceeds maximum single withdrawal")
     .refine((n) => Number.isFinite(n), "Invalid amount"),
+  pin: z
+    .string()
+    .min(4, "PIN required")
+    .max(6, "Invalid PIN format")
+    .regex(/^\d+$/, "PIN must be numbers only"),
 });
 
 const attempts = new Map<string, { count: number; resetAt: number }>();
@@ -74,6 +80,43 @@ export async function POST(req: NextRequest) {
       );
     }
     const { amount } = parsed.data;
+
+    // ── 2.5 Business day validation ─────────────────────────
+    if (!isBusinessDay()) {
+      const day = new Date().getDay();
+      const dayName = day === 0 ? "Sunday" : "Saturday";
+      return NextResponse.json(
+        { error: `Withdrawals are only available on business days (Mon-Fri). It's currently ${dayName}. Please try again on Monday.` },
+        { status: 403 }
+      );
+    }
+
+    // ── 2.6 PIN Verification ────────────────────────────────
+    // Hash the provided PIN with user ID salt and verify
+    async function hashPin(pinValue: string, userId: string): Promise<string> {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(pinValue + userId);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(hashBuffer))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+    }
+
+    const providedPinHash = await hashPin(parsed.data.pin, user.id);
+    
+    // Get user's stored PIN hash
+    const { data: userData } = await supabase
+      .from("users")
+      .select("pin_hash")
+      .eq("id", user.id)
+      .single();
+
+    if (!userData?.pin_hash || providedPinHash !== userData.pin_hash) {
+      return NextResponse.json(
+        { error: "Invalid PIN. Withdrawal cannot be processed." },
+        { status: 403 }
+      );
+    }
 
     // ── 3. Rate limit check ─────────────────────────────────
     if (isRateLimited(user.id)) {

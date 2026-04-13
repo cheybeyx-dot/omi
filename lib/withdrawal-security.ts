@@ -15,6 +15,7 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
+import { isBusinessDay } from "@/lib/business-days";
 
 export interface UserSecurityProfile {
   id: string;
@@ -72,6 +73,17 @@ export async function runWithdrawalSecurityChecks(
     return {
       pass: false,
       reason: "Withdrawals are frozen on your account. Contact support.",
+    };
+  }
+
+  // ─── CHECK 1.5: Business Day Validation ────────────────────────
+  if (!isBusinessDay()) {
+    const day = new Date().getDay();
+    const dayName = day === 0 ? "Sunday" : "Saturday";
+    console.warn("[BUSINESS_DAY] Withdrawal attempt on weekend for user:", userId);
+    return {
+      pass: false,
+      reason: `Withdrawals are only available on business days (Mon-Fri). It's currently ${dayName}. Please try again on Monday.`,
     };
   }
 
