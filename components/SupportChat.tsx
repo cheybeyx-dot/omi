@@ -345,7 +345,7 @@ export default function SupportChat() {
   return (
     <>
       {/* Floating button */}
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-2">
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-2 pointer-events-auto">
         {/* Tooltip */}
         {!open && (
           <div className="bg-slate-800 border border-slate-700 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg animate-bounce">
@@ -354,7 +354,7 @@ export default function SupportChat() {
         )}
         <button
           onClick={() => setOpen((v) => !v)}
-          className="relative w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-95"
+          className="relative w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-95 cursor-pointer"
           style={{
             background: open
               ? "#1e293b"
@@ -380,7 +380,7 @@ export default function SupportChat() {
       {/* Chat window */}
       {open && (
         <div
-          className="fixed bottom-24 right-4 sm:right-5 z-50 flex flex-col rounded-2xl shadow-2xl overflow-hidden transition-all"
+          className="fixed bottom-24 right-4 sm:right-5 z-40 flex flex-col rounded-2xl shadow-2xl overflow-hidden transition-all"
           style={{
             width: "min(380px, calc(100vw - 32px))",
             height: "min(560px, calc(100vh - 120px))",

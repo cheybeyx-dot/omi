@@ -347,16 +347,12 @@ export function VerifyPinForm() {
 
         <p className="text-center text-slate-500 text-sm">
           Forgot PIN?{" "}
-          <button
-            onClick={async () => {
-              clearPinCookie();
-              await supabase.auth.signOut();
-              router.replace("/auth/signin");
-            }}
+          <a
+            href="/auth/reset-pin"
             className="text-emerald-400 hover:underline font-semibold"
           >
             Reset here
-          </button>
+          </a>
         </p>
       </div>
     </div>

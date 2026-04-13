@@ -116,30 +116,49 @@ export default function SettingsPage() {
 
   async function updatePin() {
     if (!profile) return;
-    if (newPin.length < 4) {
-      setMsg("pin", "error", "PIN must be at least 4 digits.");
+    if (newPin.length < 4 || newPin.length > 6) {
+      setMsg("pin", "error", "PIN must be 4-6 digits.");
       return;
     }
     if (newPin !== confirmPin) {
       setMsg("pin", "error", "PINs do not match.");
       return;
     }
+    if (!/^\d+$/.test(newPin)) {
+      setMsg("pin", "error", "PIN must only contain numbers.");
+      return;
+    }
     try {
+      // Hash function matches set-pin-form and verify-pin-form
+      async function hashPin(pin: string, userId: string): Promise<string> {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(pin + userId);
+        const hashBuffer = await window.crypto.subtle.digest("SHA-256", data);
+        return Array.from(new Uint8Array(hashBuffer))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+      }
+
+      // Verify current PIN
       const { data } = await supabase
         .from("users")
         .select("pin_hash")
         .eq("id", profile.id)
         .single();
-      const valid = await bcrypt.compare(currentPin, data?.pin_hash || "");
-      if (!valid) {
+      
+      const currentHash = await hashPin(currentPin, profile.id);
+      if (currentHash !== data?.pin_hash) {
         setMsg("pin", "error", "Current PIN is incorrect.");
         return;
       }
-      const hash = await bcrypt.hash(newPin, 10);
+
+      // Hash and save new PIN
+      const newHash = await hashPin(newPin, profile.id);
       await supabase
         .from("users")
-        .update({ pin_hash: hash })
+        .update({ pin_hash: newHash, pin_attempts: 0, pin_locked: false })
         .eq("id", profile.id);
+      
       setMsg("pin", "success", "PIN updated successfully.");
       setCurrentPin("");
       setNewPin("");

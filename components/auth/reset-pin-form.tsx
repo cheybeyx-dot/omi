@@ -1,7 +1,6 @@
 "use client";
-// components/auth/set-pin-form.tsx — FIXED
-// Key fix: hashes PIN with SHA-256 + userId before saving (matches verify-pin logic)
-// Also fixes: infinite recursion by using auth.uid() correctly in update
+// components/auth/reset-pin-form.tsx
+// Allows users to change/reset their PIN after verification
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -12,23 +11,30 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Eye, EyeOff, Shield, Lock } from "lucide-react";
 
-const PinSchema = z
+const ResetPinSchema = z
   .object({
-    pin: z
+    currentPin: z
+      .string()
+      .min(4, "PIN must be at least 4 digits")
+      .regex(/^\d+$/, "PIN must only contain numbers"),
+    newPin: z
       .string()
       .min(4, "PIN must be at least 4 digits")
       .max(6, "PIN must be max 6 digits")
       .regex(/^\d+$/, "PIN must only contain numbers"),
     confirmPin: z.string(),
   })
-  .refine((data) => data.pin === data.confirmPin, {
+  .refine((data) => data.newPin === data.confirmPin, {
     message: "PINs do not match",
     path: ["confirmPin"],
+  })
+  .refine((data) => data.currentPin !== data.newPin, {
+    message: "New PIN must be different from current PIN",
+    path: ["newPin"],
   });
 
-type PinFormData = z.infer<typeof PinSchema>;
+type ResetPinData = z.infer<typeof ResetPinSchema>;
 
-// ── Same hash function used in verify-pin-form.tsx ───────────────────────────
 async function hashPin(pin: string, userId: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(pin + userId);
@@ -38,16 +44,18 @@ async function hashPin(pin: string, userId: string): Promise<string> {
     .join("");
 }
 
-export function SetPinForm() {
+export function ResetPinForm() {
   const [loading, setLoading] = useState(false);
   const [showPin, setShowPin] = useState(false);
   const [sessionError, setSessionError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Check session on mount
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
       if (error || !session?.user) {
         setSessionError("Session expired. Please sign in again.");
       }
@@ -59,11 +67,11 @@ export function SetPinForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<PinFormData>({
-    resolver: zodResolver(PinSchema),
+  } = useForm<ResetPinData>({
+    resolver: zodResolver(ResetPinSchema),
   });
 
-  const onSubmit = async (data: PinFormData) => {
+  const onSubmit = async (data: ResetPinData) => {
     try {
       setLoading(true);
 
@@ -74,43 +82,63 @@ export function SetPinForm() {
       if (sessionErr || !session?.user)
         throw new Error("Session expired. Please sign in again.");
 
-      // ── FIXED: hash the PIN before storing — MUST match verify-pin hashing ──
-      const hashedPin = await hashPin(data.pin, session.user.id);
+      // Get stored PIN hash
+      const { data: userData, error: userErr } = await supabase
+        .from("users")
+        .select("pin_hash")
+        .eq("id", session.user.id)
+        .single();
 
-      // ── FIXED: use RPC or direct update with minimal fields to avoid RLS recursion ──
+      if (userErr || !userData)
+        throw new Error("Failed to retrieve current PIN.");
+
+      // Verify current PIN
+      const currentHash = await hashPin(data.currentPin, session.user.id);
+      if (currentHash !== userData.pin_hash) {
+        throw new Error("Current PIN is incorrect.");
+      }
+
+      // Hash new PIN
+      const newHash = await hashPin(data.newPin, session.user.id);
+
+      // Update PIN in database
       const { error: updateError } = await supabase
         .from("users")
         .update({
-          pin_hash: hashedPin,
+          pin_hash: newHash,
           pin_attempts: 0,
           pin_locked: false,
         })
         .eq("id", session.user.id);
 
       if (updateError) {
-        // If RLS recursion error, try upsert instead
-        if (
-          updateError.message?.includes("infinite recursion") ||
-          updateError.message?.includes("policy")
-        ) {
-          throw new Error(
-            "Database policy error. Please run the RLS fix SQL in Supabase. " +
-              updateError.message,
-          );
-        }
         throw updateError;
       }
 
-      toast.success("Security PIN set successfully!");
-      router.refresh();
-      router.replace("/dashboard");
+      toast.success("PIN updated successfully!");
+      router.push("/dashboard");
     } catch (error: any) {
-      console.error("PIN Error:", error);
-      toast.error(error.message || "Failed to save PIN");
+      console.error("Reset PIN error:", error);
+      toast.error(error.message || "Failed to update PIN");
     } finally {
       setLoading(false);
     }
   };
+
+  if (sessionError) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center p-4"
+        style={{ background: "#030712" }}
+      >
+        <div className="w-full max-w-sm text-center">
+          <div className="bg-red-900/20 border border-red-700/30 rounded-lg px-4 py-3 text-red-300">
+            {sessionError}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -129,28 +157,46 @@ export function SetPinForm() {
           >
             <Shield size={28} className="text-emerald-400" />
           </div>
-          <h1 className="text-white font-black text-2xl">Create PIN</h1>
+          <h1 className="text-white font-black text-2xl">Update PIN</h1>
           <p className="text-slate-400 text-sm">
-            Used for withdrawals and security
+            Change your security PIN
           </p>
         </div>
 
-        {/* Session error alert */}
-        {sessionError && (
-          <div className="bg-red-900/20 border border-red-700/30 rounded-lg px-3 py-2.5 text-xs text-red-300">
-            {sessionError}
-          </div>
-        )}
-
         {/* Form card */}
-        <div
+        <form
+          onSubmit={handleSubmit(onSubmit)}
           className="rounded-2xl p-6 space-y-4"
           style={{
             background: "rgba(15,23,42,0.8)",
             border: "1px solid rgba(255,255,255,0.07)",
           }}
         >
-          {/* PIN input */}
+          {/* Current PIN */}
+          <div className="space-y-1.5">
+            <label className="text-slate-400 text-xs font-semibold uppercase tracking-wide">
+              Current PIN
+            </label>
+            <div className="relative">
+              <input
+                type={showPin ? "text" : "password"}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                placeholder="••••"
+                {...register("currentPin")}
+                disabled={loading}
+                className="w-full px-4 py-3.5 rounded-xl text-white text-lg font-bold tracking-[0.4em] text-center bg-slate-900 border border-slate-700 focus:outline-none focus:border-emerald-500 transition-colors placeholder-slate-700 disabled:opacity-50"
+              />
+            </div>
+            {errors.currentPin && (
+              <p className="text-red-400 text-xs mt-1">
+                {errors.currentPin.message}
+              </p>
+            )}
+          </div>
+
+          {/* New PIN */}
           <div className="space-y-1.5">
             <label className="text-slate-400 text-xs font-semibold uppercase tracking-wide">
               New PIN (4–6 digits)
@@ -162,7 +208,7 @@ export function SetPinForm() {
                 pattern="[0-9]*"
                 maxLength={6}
                 placeholder="••••"
-                {...register("pin")}
+                {...register("newPin")}
                 disabled={loading}
                 className="w-full px-4 py-3.5 pr-11 rounded-xl text-white text-lg font-bold tracking-[0.4em] text-center bg-slate-900 border border-slate-700 focus:outline-none focus:border-emerald-500 transition-colors placeholder-slate-700 disabled:opacity-50"
               />
@@ -174,15 +220,17 @@ export function SetPinForm() {
                 {showPin ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
             </div>
-            {errors.pin && (
-              <p className="text-red-400 text-xs mt-1">{errors.pin.message}</p>
+            {errors.newPin && (
+              <p className="text-red-400 text-xs mt-1">
+                {errors.newPin.message}
+              </p>
             )}
           </div>
 
-          {/* Confirm PIN */}
+          {/* Confirm New PIN */}
           <div className="space-y-1.5">
             <label className="text-slate-400 text-xs font-semibold uppercase tracking-wide">
-              Confirm PIN
+              Confirm New PIN
             </label>
             <div className="relative">
               <input
@@ -204,8 +252,7 @@ export function SetPinForm() {
           </div>
 
           <button
-            type="button"
-            onClick={handleSubmit(onSubmit)}
+            type="submit"
             disabled={loading}
             className="w-full py-4 rounded-xl font-black text-white text-base flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed mt-2"
             style={{ background: "linear-gradient(135deg,#10b981,#059669)" }}
@@ -213,24 +260,23 @@ export function SetPinForm() {
             {loading ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Securing Account...
+                Updating PIN...
               </>
             ) : (
               <>
                 <Lock size={16} />
-                Finish Setup
+                Update PIN
               </>
             )}
           </button>
-        </div>
+        </form>
 
         <p className="text-center text-slate-600 text-xs">
-          Your PIN is hashed and stored securely. It cannot be recovered — keep
-          it safe.
+          Your PIN is hashed and stored securely.
         </p>
       </div>
     </div>
   );
 }
 
-export default SetPinForm;
+export default ResetPinForm;
