@@ -4,6 +4,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdminAuth, checkAdminRateLimit, getClientIp, logAdminAction } from "@/lib/api-security";
 
 const db = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,7 +32,28 @@ const tryInsert = async (table: string, data: any) => {
 };
 
 export async function GET(req: NextRequest) {
+  // ── SECURITY: Check admin auth ──────────────────────────────
+  const authResult = await requireAdminAuth(req);
+  if (authResult instanceof Response) return authResult;
+  const { userId } = authResult;
+
+  // ── SECURITY: Rate limiting ─────────────────────────────────
+  const clientIp = getClientIp(req);
+  if (!checkAdminRateLimit(clientIp, 100, 60)) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded" },
+      { status: 429 }
+    );
+  }
+
   const resource = new URL(req.url).searchParams.get("resource");
+  
+  // Log the request
+  await logAdminAction(userId, "GET_ADMIN_STATS", resource || "unknown", { 
+    ip: clientIp,
+    resource 
+  });
+
   try {
     switch (resource) {
       case "stats": {
