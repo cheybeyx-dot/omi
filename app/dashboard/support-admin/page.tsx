@@ -13,7 +13,8 @@ import {
 
 type Message = {
   id: string;
-  message: string;
+  message?: string | null;
+  body?: string | null;
   is_admin: boolean;
   sender_id: string | null;
   image_url?: string | null;
@@ -32,6 +33,10 @@ type Ticket = {
   created_at: string;
   last_message_at: string;
 };
+
+function getText(msg: Message): string {
+  return msg.message || msg.body || "";
+}
 
 export default function SupportAdminPage() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -201,12 +206,14 @@ export default function SupportAdminPage() {
               {filteredTickets.map((ticket) => (
                 <button
                   key={ticket.id}
+                  type="button"
                   onClick={() => setSelectedTicket(ticket)}
                   className={`w-full text-left p-3 rounded-lg transition-all ${
                     selectedTicket?.id === ticket.id
                       ? "bg-emerald-500/20 border border-emerald-500/50"
                       : "bg-slate-800/50 border border-slate-700/50 hover:border-slate-600"
                   }`}
+                  style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
                 >
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <p className="text-white font-bold text-sm truncate">
@@ -299,7 +306,7 @@ export default function SupportAdminPage() {
                                 : "rounded-tl-sm bg-slate-800/60 border border-slate-700/50 text-slate-100"
                             }`}
                           >
-                            {msg.message}
+                            {getText(msg)}
                           </div>
                           {msg.image_url && (
                             <a
@@ -355,9 +362,11 @@ export default function SupportAdminPage() {
                       style={{ maxHeight: "80px" }}
                     />
                     <button
+                      type="button"
                       onClick={sendReply}
                       disabled={sending || !replyText.trim()}
                       className="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white shrink-0"
+                      style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", minHeight: "44px", minWidth: "44px", pointerEvents: "auto" }}
                     >
                       {sending ? (
                         <Loader2 size={15} className="animate-spin" />

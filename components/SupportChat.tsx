@@ -302,10 +302,9 @@ export default function SupportChat() {
       imgName,
     );
 
-    setTimeout(async () => {
-      const reply = `Hi ${name}! 👋 Thanks for reaching out about "${formTopic}". Our support team will respond within 2 hours (09:00–18:00 UTC). Ticket ID: #${newTicket.id.slice(0, 8).toUpperCase()}.`;
-      await insertMessage(newTicket.id, reply, true, null);
-    }, 1500);
+    // Send auto-reply without delay
+    const reply = `Hi ${name}! 👋 Thanks for reaching out about "${formTopic}". Our support team will respond within 2 hours (09:00–18:00 UTC). Ticket ID: #${newTicket.id.slice(0, 8).toUpperCase()}.`;
+    await insertMessage(newTicket.id, reply, true, null);
 
     setTicket(newTicket);
     setStage("chat");
@@ -449,9 +448,10 @@ export default function SupportChat() {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setOpen(false)}
               className="text-white/70 hover:text-white p-1"
-              style={tapStyle}
+              style={{ ...tapStyle, touchAction: "manipulation", minHeight: "32px", minWidth: "32px" }}
             >
               <X size={16} />
             </button>
@@ -476,6 +476,7 @@ export default function SupportChat() {
                   {QUICK_TOPICS.map((t) => (
                     <button
                       key={t}
+                      type="button"
                       onClick={() => {
                         setFormTopic(t);
                         setStage("form");
@@ -485,6 +486,7 @@ export default function SupportChat() {
                         background: "rgba(30,41,59,0.6)",
                         border: "1px solid rgba(255,255,255,0.07)",
                         ...tapStyle,
+                        touchAction: "manipulation",
                       }}
                     >
                       {t}
@@ -502,9 +504,10 @@ export default function SupportChat() {
             {stage === "form" && (
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 <button
+                  type="button"
                   onClick={() => setStage("start")}
                   className="text-slate-500 hover:text-slate-300 text-xs"
-                  style={tapStyle}
+                  style={{ ...tapStyle, touchAction: "manipulation" }}
                 >
                   ← Back
                 </button>
@@ -573,20 +576,24 @@ export default function SupportChat() {
                         className="w-full max-h-32 object-cover"
                       />
                       <button
+                        type="button"
                         onClick={removeImage}
                         className="absolute top-2 right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center"
+                        style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
                       >
                         <X size={10} className="text-white" />
                       </button>
                     </div>
                   ) : (
                     <button
+                      type="button"
                       onClick={() => fileInputRef.current?.click()}
                       className="w-full py-3 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-300 flex items-center justify-center gap-2 border-dashed"
                       style={{
                         background: "rgba(30,41,59,0.4)",
                         border: "1px dashed rgba(255,255,255,0.1)",
                         ...tapStyle,
+                        touchAction: "manipulation",
                       }}
                     >
                       <Paperclip size={12} /> Click to attach image or
@@ -602,12 +609,16 @@ export default function SupportChat() {
                   />
                 </div>
                 <button
+                  type="button"
                   onClick={handleStartChat}
                   disabled={loading || !formMessage.trim()}
                   className="w-full py-3 rounded-xl font-black text-sm text-white flex items-center justify-center gap-2 disabled:opacity-40"
                   style={{
                     background: "linear-gradient(135deg,#059669,#10b981)",
                     ...tapStyle,
+                    touchAction: "manipulation",
+                    minHeight: "44px",
+                    pointerEvents: "auto",
                   }}
                 >
                   {loading ? (
@@ -733,8 +744,10 @@ export default function SupportChat() {
                       {imageFile?.name}
                     </p>
                     <button
+                      type="button"
                       onClick={removeImage}
                       className="text-slate-500 hover:text-red-400"
+                      style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
                     >
                       <X size={14} />
                     </button>
@@ -749,6 +762,7 @@ export default function SupportChat() {
                         This ticket is {ticket.status}.
                       </p>
                       <button
+                        type="button"
                         onClick={() => {
                           setTicket(null);
                           setStage("start");
@@ -760,6 +774,7 @@ export default function SupportChat() {
                           }
                         }}
                         className="text-emerald-400 text-xs hover:underline mt-1"
+                        style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
                       >
                         Open new ticket
                       </button>
@@ -767,9 +782,10 @@ export default function SupportChat() {
                   ) : (
                     <div className="flex items-end gap-2">
                       <button
+                        type="button"
                         onClick={() => fileInputRef.current?.click()}
                         className="p-2 rounded-xl text-slate-500 hover:text-emerald-400 hover:bg-slate-800/60 shrink-0"
-                        style={tapStyle}
+                        style={{ ...tapStyle, touchAction: "manipulation", minHeight: "44px", minWidth: "44px" }}
                       >
                         {uploading ? (
                           <Loader2 size={16} className="animate-spin" />
@@ -787,12 +803,17 @@ export default function SupportChat() {
                         style={{ maxHeight: "80px" }}
                       />
                       <button
+                        type="button"
                         onClick={sendMessage}
                         disabled={sending || (!text.trim() && !imageFile)}
                         className="p-2.5 rounded-xl disabled:opacity-40 shrink-0"
                         style={{
                           background: "linear-gradient(135deg,#059669,#10b981)",
                           ...tapStyle,
+                          touchAction: "manipulation",
+                          minHeight: "44px",
+                          minWidth: "44px",
+                          pointerEvents: "auto",
                         }}
                       >
                         {sending ? (
