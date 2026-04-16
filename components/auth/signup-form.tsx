@@ -197,6 +197,7 @@ function SignUpFormInner() {
             type="button"
             onClick={() => setShowPw((v) => !v)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+            style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
           >
             {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
@@ -217,12 +218,13 @@ function SignUpFormInner() {
         />
       </div>
 
-      <label className="flex items-start gap-3 cursor-pointer">
+      <label className="flex items-start gap-3 cursor-pointer" style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}>
         <input
           type="checkbox"
           checked={agreed}
           onChange={(e) => setAgreed(e.target.checked)}
           className="mt-0.5 rounded accent-emerald-500"
+          style={{ WebkitAppearance: "none", appearance: "none", width: "18px", height: "18px", border: "2px solid rgb(100, 116, 139)", borderRadius: "4px", cursor: "pointer", background: agreed ? "linear-gradient(135deg, #059669, #10b981)" : "transparent", backgroundImage: agreed ? `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="white"><path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 11-1.06-1.06L12.72 4.22a.75.75 0 011.06 0Z"/></svg>')` : "none", backgroundSize: "cover", backgroundPosition: "center" }}
         />
         <span className="text-slate-400 text-xs leading-relaxed">
           I agree to the{" "}
@@ -238,7 +240,7 @@ function SignUpFormInner() {
 
       <button
         type="submit"
-        disabled={loading || !agreed}
+        disabled={loading}
         className="w-full py-3.5 rounded-lg font-black text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         style={{
           background: !agreed ? "rgba(16, 185, 129, 0.3)" : loading ? "rgba(16, 185, 129, 0.6)" : "linear-gradient(135deg, #059669, #10b981)",
@@ -246,6 +248,8 @@ function SignUpFormInner() {
           cursor: !agreed ? "not-allowed" : loading ? "wait" : "pointer",
           WebkitTapHighlightColor: "transparent",
           touchAction: "manipulation",
+          pointerEvents: "auto",
+          minHeight: "44px",
         }}
       >
         {loading ? (
