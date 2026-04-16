@@ -173,6 +173,7 @@ export default function MobileBottomNav() {
                 key={href}
                 href={href}
                 className="flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors"
+                style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
               >
                 <div className="relative flex items-center justify-center">
                   <Icon
@@ -198,7 +199,9 @@ export default function MobileBottomNav() {
           {/* More button */}
           <button
             onClick={() => setMoreOpen(!moreOpen)}
+            type="button"
             className="flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors"
+            style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
           >
             <div className="relative flex items-center justify-center">
               <MoreHorizontal

@@ -156,7 +156,14 @@ export default function PWAInstallBanner() {
   if ((!showInstall || installDone) && (!showNotif || notifDone)) return null;
 
   return (
-    <div className="fixed z-[9999] space-y-2 bottom-4 left-4 right-4">
+    <div 
+      className="fixed z-[9999] space-y-2 left-4 right-4"
+      style={{ 
+        bottom: "1rem",
+        pointerEvents: "auto",
+        touchAction: "manipulation"
+      }}
+    >
       {/* ── Install banner ─────────────────────────────────────────────── */}
       {showInstall && !installDone && (
         <div className="bg-slate-900/98 border border-emerald-500/30 rounded-2xl p-4 flex gap-3 shadow-2xl">
@@ -173,13 +180,17 @@ export default function PWAInstallBanner() {
             <div className="flex gap-2 mt-3">
               <button
                 onClick={handleInstall}
+                type="button"
                 className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs px-3.5 py-1.5 rounded-lg transition"
+                style={{ WebkitTapHighlightColor: "transparent" }}
               >
                 Install
               </button>
               <button
                 onClick={dismissInstall}
+                type="button"
                 className="bg-transparent text-slate-400 text-xs px-2.5 py-1.5 rounded-lg border border-slate-600 hover:border-slate-500 transition"
+                style={{ WebkitTapHighlightColor: "transparent" }}
               >
                 Not now
               </button>
@@ -187,7 +198,9 @@ export default function PWAInstallBanner() {
           </div>
           <button
             onClick={dismissInstall}
+            type="button"
             className="text-slate-500 hover:text-white transition p-1 shrink-0"
+            style={{ WebkitTapHighlightColor: "transparent" }}
           >
             ✕
           </button>
@@ -211,13 +224,17 @@ export default function PWAInstallBanner() {
             <div className="flex gap-2 mt-3">
               <button
                 onClick={handleEnableNotif}
+                type="button"
                 className="bg-blue-500 hover:bg-blue-400 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition"
+                style={{ WebkitTapHighlightColor: "transparent" }}
               >
                 Enable
               </button>
               <button
                 onClick={dismissNotif}
+                type="button"
                 className="bg-transparent text-slate-400 text-xs px-2.5 py-1.5 rounded-lg border border-slate-600 hover:border-slate-500 transition"
+                style={{ WebkitTapHighlightColor: "transparent" }}
               >
                 Skip
               </button>
@@ -225,7 +242,9 @@ export default function PWAInstallBanner() {
           </div>
           <button
             onClick={dismissNotif}
+            type="button"
             className="text-slate-500 hover:text-white transition p-1 shrink-0"
+            style={{ WebkitTapHighlightColor: "transparent" }}
           >
             ✕
           </button>

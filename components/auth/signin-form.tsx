@@ -68,7 +68,7 @@ export function SignInForm() {
           <p className="text-slate-400 text-sm">Sign in to your account</p>
         </div>
 
-        <div className="rounded-2xl p-6 space-y-4 bg-slate-900/80 border border-white/7">
+        <div className="rounded-2xl p-6 space-y-4 bg-slate-900/95 border border-white/7" style={{ WebkitBackfaceVisibility: "hidden", backfaceVisibility: "hidden" }}>
 
           {/* Email */}
           <div className="space-y-1.5">
@@ -137,6 +137,7 @@ export function SignInForm() {
             onClick={handleSubmit(onSubmit)}
             disabled={loading}
             className="w-full py-4 rounded-xl font-black text-white text-base flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400"
+            style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
           >
             {loading ? (
               <>

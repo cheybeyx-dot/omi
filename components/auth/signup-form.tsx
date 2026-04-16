@@ -244,6 +244,8 @@ function SignUpFormInner() {
           background: !agreed ? "rgba(16, 185, 129, 0.3)" : loading ? "rgba(16, 185, 129, 0.6)" : "linear-gradient(135deg, #059669, #10b981)",
           color: "white",
           cursor: !agreed ? "not-allowed" : loading ? "wait" : "pointer",
+          WebkitTapHighlightColor: "transparent",
+          touchAction: "manipulation",
         }}
       >
         {loading ? (

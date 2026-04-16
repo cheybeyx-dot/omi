@@ -371,8 +371,13 @@ export default function SupportChat() {
   return (
     <>
       <div
-        className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-2"
-        style={{ pointerEvents: "auto" }}
+        className="fixed z-50 flex flex-col items-end gap-2"
+        style={{ 
+          bottom: "1.25rem",
+          right: "1.25rem",
+          pointerEvents: "auto",
+          touchAction: "manipulation"
+        }}
       >
         {!open && (
           <div className="bg-slate-800 border border-slate-700 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg animate-bounce pointer-events-none select-none">
@@ -382,12 +387,15 @@ export default function SupportChat() {
         <button
           onClick={() => setOpen((v) => !v)}
           className="relative w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-95"
+          type="button"
           style={{
             background: open
               ? "#1e293b"
               : "linear-gradient(135deg,#059669,#10b981)",
             boxShadow: "0 8px 25px rgba(16,185,129,0.4)",
             ...tapStyle,
+            WebkitUserSelect: "none",
+            userSelect: "none",
           }}
         >
           {open ? (

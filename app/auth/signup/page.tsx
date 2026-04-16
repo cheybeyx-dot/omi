@@ -37,7 +37,7 @@ export default function SignUpPage() {
         </div>
 
         {/* Form container — NO backdrop-blur (breaks touch on Android) */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
+        <div className="bg-slate-900/95 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl" style={{ WebkitBackfaceVisibility: "hidden", backfaceVisibility: "hidden" }}>
           <SignUpForm />
 
           {/* Divider */}
@@ -55,8 +55,9 @@ export default function SignUpPage() {
           {/* Sign in link */}
           <a href="/auth/signin" className="w-full inline-block">
             <button
+              type="button"
               className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 text-emerald-400 font-semibold py-2.5 sm:py-3 rounded-lg transition-all flex items-center justify-center gap-2 group text-sm sm:text-base"
-              style={{ WebkitTapHighlightColor: "transparent" }}
+              style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
             >
               Sign In
               <ArrowRight
