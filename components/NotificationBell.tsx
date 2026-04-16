@@ -121,11 +121,13 @@ export default function NotificationBell() {
   return (
     <div className="relative">
       <button
+        type="button"
         onClick={() => {
           setOpen(!open);
           if (!open && unread > 0) markAllRead();
         }}
         className="relative w-9 h-9 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all"
+        style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
       >
         <Bell size={17} />
         {unread > 0 && (
@@ -144,8 +146,10 @@ export default function NotificationBell() {
                 Notifications
               </span>
               <button
+                type="button"
                 onClick={() => setOpen(false)}
                 className="text-slate-500 hover:text-white transition-colors"
+                style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
               >
                 <X size={15} />
               </button>
@@ -194,8 +198,10 @@ export default function NotificationBell() {
             {notifications.length > 0 && (
               <div className="px-4 py-2.5 border-t border-slate-800">
                 <button
+                  type="button"
                   onClick={markAllRead}
                   className="text-emerald-400 text-xs font-semibold hover:text-emerald-300 transition-colors"
+                  style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
                 >
                   Mark all as read
                 </button>

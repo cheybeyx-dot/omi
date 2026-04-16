@@ -96,6 +96,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   return (
     <div
       onClick={() => setOpen(!open)}
+      style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
       className={`border rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${open ? "border-emerald-500/30 bg-slate-900" : "border-slate-800 bg-slate-900/30 hover:border-slate-700"}`}
     >
       <div className="flex justify-between items-center p-4 sm:p-5 md:p-6 gap-3 sm:gap-4">

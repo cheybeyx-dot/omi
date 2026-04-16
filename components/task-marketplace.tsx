@@ -101,6 +101,7 @@ export default function TaskMarketplace({ tier }: { tier: string }) {
                 disabled={locked || submitting === task.id}
                 className="w-full mt-3"
                 onClick={() => submitTask(task.id)}
+                style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
               >
                 {locked
                   ? `Requires ${task.tier_required}`

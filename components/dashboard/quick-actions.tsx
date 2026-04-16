@@ -14,7 +14,9 @@ export default function QuickActions() {
         {actions.map((a, i) => (
           <button
             key={i}
+            type="button"
             className="w-full bg-slate-800 hover:bg-slate-700 p-2.5 sm:p-3 rounded-lg text-xs sm:text-sm transition-colors"
+            style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
           >
             {a}
           </button>

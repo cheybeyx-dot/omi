@@ -170,6 +170,7 @@ export function SetPinForm() {
                 type="button"
                 onClick={() => setShowPin((v) => !v)}
                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
               >
                 {showPin ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
@@ -208,7 +209,7 @@ export function SetPinForm() {
             onClick={handleSubmit(onSubmit)}
             disabled={loading}
             className="w-full py-4 rounded-xl font-black text-white text-base flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed mt-2"
-            style={{ background: "linear-gradient(135deg,#10b981,#059669)" }}
+            style={{ background: "linear-gradient(135deg,#10b981,#059669)", WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
           >
             {loading ? (
               <>

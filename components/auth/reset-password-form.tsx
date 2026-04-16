@@ -135,7 +135,7 @@ export function ResetPasswordForm() {
               onClick={handleSubmit(onSubmit)}
               disabled={loading}
               className="w-full py-4 rounded-xl font-black text-white text-base flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{ background: "linear-gradient(135deg,#10b981,#059669)" }}
+              style={{ background: "linear-gradient(135deg,#10b981,#059669)", WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
             >
               {loading ? (
                 <>

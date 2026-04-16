@@ -98,8 +98,10 @@ export function ReferralWidget({ trigger = "idle", className = "" }: Props) {
       className={`relative bg-gradient-to-br from-blue-950/60 to-slate-900/80 border border-blue-900/40 rounded-2xl p-4 space-y-3 ${className}`}
     >
       <button
+        type="button"
         onClick={() => setDismissed(true)}
         className="absolute top-3 right-3 text-slate-600 hover:text-slate-400 transition-colors"
+        style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
       >
         <X size={14} />
       </button>
@@ -137,8 +139,10 @@ export function ReferralWidget({ trigger = "idle", className = "" }: Props) {
       {/* Actions */}
       <div className="flex gap-2">
         <button
+          type="button"
           onClick={copy}
           className="flex-1 flex items-center justify-center gap-1.5 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/40 text-slate-300 text-xs font-bold py-2.5 rounded-xl transition-all"
+          style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
         >
           {copied ? (
             "✓ Copied!"
@@ -149,8 +153,10 @@ export function ReferralWidget({ trigger = "idle", className = "" }: Props) {
           )}
         </button>
         <button
+          type="button"
           onClick={() => router.push("/dashboard/network")}
           className="flex-1 flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all"
+          style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
         >
           View Network <ChevronRight size={11} />
         </button>
@@ -184,8 +190,10 @@ export function ReferralInlineBanner() {
 
   return (
     <button
+      type="button"
       onClick={() => router.push("/dashboard/network")}
       className="w-full flex items-center gap-3 bg-gradient-to-r from-blue-950/50 to-slate-900/50 border border-blue-900/30 rounded-xl px-4 py-3 hover:border-blue-800/60 transition-all group"
+      style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
     >
       <div className="w-7 h-7 rounded-lg bg-blue-600/20 flex items-center justify-center shrink-0">
         <Gift size={13} className="text-blue-400" />
