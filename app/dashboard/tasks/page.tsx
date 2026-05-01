@@ -1363,7 +1363,7 @@ export default function TasksPage() {
           </div>
 
           {/* Task tabs */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="space-y-6">
             {TABS.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -1371,7 +1371,7 @@ export default function TasksPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className="rounded-2xl p-4 text-left transition-all"
+                  className="w-full rounded-2xl p-6 text-left transition-all"
                   style={{
                     background: isActive
                       ? `${tab.color}12`
