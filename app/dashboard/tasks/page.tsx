@@ -1363,7 +1363,7 @@ export default function TasksPage() {
           </div>
 
           {/* Task tabs */}
-          <div className="space-y-6">
+          <div className="mt-8 space-y-6">
             {TABS.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -1432,6 +1432,7 @@ export default function TasksPage() {
           </div>
 
           {/* Tab content */}
+          <div className="mt-8">
           {userId && activeTab === "rlhf" && (
             <RLHFSection
               userId={userId}
@@ -1548,6 +1549,7 @@ export default function TasksPage() {
               )}
             </div>
           )}
+          </div>
         </div>
       </main>
     </div>
