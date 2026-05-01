@@ -18,8 +18,9 @@ import {
   FileText,
   HelpCircle,
   Receipt,
+  Download,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const PRIMARY_NAV = [
   { label: "Home", href: "/dashboard", icon: Home },
@@ -66,6 +67,37 @@ const HIDDEN_ON = ["/dashboard/checkout", "/auth"];
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showPWAInstall, setShowPWAInstall] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowPWAInstall(true);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    // Check if already installed
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setShowPWAInstall(false);
+    }
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handlePWAInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === "accepted") {
+      setDeferredPrompt(null);
+      setShowPWAInstall(false);
+    }
+  };
 
   const shouldHide =
     !pathname.startsWith("/dashboard") ||
@@ -109,6 +141,26 @@ export default function MobileBottomNav() {
 
           {/* Sections — overflow-y-auto here, NOT on the parent */}
           <div className="p-3 space-y-4 overflow-y-auto" style={{ maxHeight: "65vh" }}>
+            {/* PWA Install Section — only show if available */}
+            {showPWAInstall && (
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-widest px-1 mb-2 text-slate-500">
+                  App
+                </p>
+                <button
+                  onClick={handlePWAInstall}
+                  className="w-full flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15"
+                >
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-emerald-500/15">
+                    <Download size={17} className="text-emerald-400" />
+                  </div>
+                  <span className="text-[10px] font-medium text-center leading-tight text-emerald-400">
+                    Install App
+                  </span>
+                </button>
+              </div>
+            )}
+
             {MORE_SECTIONS.map(({ title, items }) => (
               <div key={title}>
                 <p className="text-[9px] font-bold uppercase tracking-widest px-1 mb-2 text-slate-500">

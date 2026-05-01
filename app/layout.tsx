@@ -100,8 +100,9 @@ export const metadata: Metadata = {
   },
 
   icons: {
-    icon: "/favicon.ico",
-    apple: "/logo-main.png",
+    icon: "/favicon-rounded.png",
+    apple: "/favicon-rounded.png",
+    shortcut: "/favicon-rounded.png",
   },
 
   manifest: "/manifest.json",
