@@ -320,6 +320,9 @@ export default function SupportAdminPage() {
                               msg.is_admin ? "justify-end" : "justify-start"
                             }`}
                           >
+                            <span className="text-xs">
+                              {msg.is_admin ? "Admin" : (selectedTicket?.guest_name || "User")}
+                            </span>
                             <span>
                               {new Date(msg.created_at).toLocaleTimeString(
                                 "en",

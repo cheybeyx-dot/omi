@@ -912,7 +912,8 @@ function LicenseInner() {
               <button
                 onClick={() => {
                   if (!canCheckout) return;
-                  router.push(`/dashboard/checkout?purchaseType=license&licenseType=${licenseType}&node=${licenseType}&price=200&name=Certified+AI+Operator+License&key=${encodeURIComponent(validatedKey)}`);
+                  const currentLicenseType = searchParams.get("licenseType") || "operator_license";
+                  router.push(`/dashboard/checkout?purchaseType=license&licenseType=${currentLicenseType}&node=${currentLicenseType}&price=200&name=Certified+AI+Operator+License&key=${encodeURIComponent(validatedKey)}`);
                 }}
                 disabled={!canCheckout}
                 className={`w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${canCheckout ? "bg-black text-white hover:bg-gray-900 cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}

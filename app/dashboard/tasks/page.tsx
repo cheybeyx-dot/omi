@@ -123,12 +123,11 @@ function generateTickPnL(currentValue: number): {
 function PurchaseModal({
   type,
   onClose,
-  onBuy,
 }: {
   type: LicenseType;
   onClose: () => void;
-  onBuy: () => void;
 }) {
+  const router = useRouter();
   const info = {
     thermal_optimization: {
       name: "Thermal & Neural Operator License",
@@ -147,6 +146,11 @@ function PurchaseModal({
     },
   }[type];
   const Icon = info.icon;
+  
+  const handleNavigateToLicense = () => {
+    router.push(`/dashboard/license?licenseType=${type}`);
+  };
+  
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -211,7 +215,7 @@ function PurchaseModal({
             ))}
           </div>
           <button
-            onClick={onBuy}
+            onClick={handleNavigateToLicense}
             className="w-full py-3.5 rounded-2xl font-black text-slate-950 text-sm flex items-center justify-center gap-2"
             style={{ background: info.color }}
           >
