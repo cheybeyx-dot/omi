@@ -19,9 +19,50 @@ function getAdminClient() {
   });
 }
 
+async function verifyAdminAccess(req: NextRequest): Promise<{ userId: string } | null> {
+  try {
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return null;
+    }
+
+    const token = authHeader.substring(7);
+    const supabase = getAdminClient();
+
+    // Verify the token and get user
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) {
+      return null;
+    }
+
+    // Check if user is admin using service role
+    const { data: profile } = await supabase
+      .from("users")
+      .select("is_admin, role")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile?.is_admin && profile?.role !== "admin") {
+      return null;
+    }
+
+    return { userId: user.id };
+  } catch (error) {
+    return null;
+  }
+}
+
 // GET /api/admin/users — list users with filters
 export async function GET(req: NextRequest) {
   try {
+    const adminAuth = await verifyAdminAccess(req);
+    if (!adminAuth) {
+      return NextResponse.json(
+        { error: "Forbidden: Admin access required — Make sure SUPABASE_SERVICE_ROLE_KEY (no NEXT_PUBLIC_*) is in .env.local and restart your dev server" },
+        { status: 403 }
+      );
+    }
+
     const supabase = getAdminClient();
     const { searchParams } = new URL(req.url);
 
@@ -76,6 +117,14 @@ export async function GET(req: NextRequest) {
 // PATCH /api/admin/users — update a user
 export async function PATCH(req: NextRequest) {
   try {
+    const adminAuth = await verifyAdminAccess(req);
+    if (!adminAuth) {
+      return NextResponse.json(
+        { error: "Forbidden: Admin access required" },
+        { status: 403 }
+      );
+    }
+
     const supabase = getAdminClient();
     const body = await req.json();
     const { id, ...updates } = body;
